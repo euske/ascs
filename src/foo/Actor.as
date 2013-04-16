@@ -23,6 +23,7 @@ public class Actor extends Sprite
   {
     this.scene = scene;
     this.skin = skin;
+    this.pos = new Point(0, 0);
     addChild(this.skin);
   }
 

@@ -5,24 +5,97 @@ package foo {
 import flash.display.Sprite;
 import flash.display.Stage;
 import flash.display.StageScaleMode;
-import flash.display.Bitmap;
 import flash.events.Event;
 import flash.events.KeyboardEvent;
-import flash.events.MouseEvent;
-import flash.events.NetStatusEvent;
-import flash.events.NetDataEvent;
-import flash.media.Sound;
 import flash.ui.Keyboard;
+import foo.GameState;
 import foo.Logger;
-import foo.Actor;
-import foo.Scene;
-import foo.TileMap;
-
 
 //  Main 
 //
 [SWF(width="640", height="480", backgroundColor="#000000", frameRate=24)]
 public class Main extends Sprite
+{
+  private var state:GameState;
+  private var paused:Boolean;
+
+  // Main()
+  public function Main()
+  {
+    stage.scaleMode = StageScaleMode.NO_SCALE;
+    stage.addEventListener(KeyboardEvent.KEY_DOWN, OnKeyDown);
+    stage.addEventListener(KeyboardEvent.KEY_UP, OnKeyUp);
+    stage.addEventListener(Event.ENTER_FRAME, OnEnterFrame);
+
+    SetGameState(new GameState1(stage.stageWidth, stage.stageHeight));
+  }
+
+  // OnKeyDown(e)
+  protected function OnKeyDown(e:KeyboardEvent):void 
+  {
+    switch (e.keyCode) {
+    case 80:			// P
+      // Toggle pause.
+      paused = !paused;
+      break;
+
+    case Keyboard.ESCAPE:	// Esc
+    case 81:			// Q
+      SetGameState(new GameState1(stage.stageWidth, stage.stageHeight));
+      break;
+    }
+    
+    if (state != null) {
+      state.keydown(e.keyCode);
+    }
+  }
+
+  // OnKeyUp(e)
+  protected function OnKeyUp(e:KeyboardEvent):void 
+  {
+    if (state != null) {
+      state.keyup(e.keyCode);
+    }
+  }
+
+  // OnEnterFrame(e)
+  protected function OnEnterFrame(e:Event):void
+  {
+    if (!paused) {
+      if (state != null) {
+	state.update();
+      }
+    }
+  }
+
+  protected function SetGameState(state:GameState):void
+  {
+    if (this.state != null) {
+      Logger.log("close: "+this.state);
+      this.state.close();
+      removeChild(this.state);
+    }
+    this.state = state;
+    if (this.state != null) {
+      Logger.log("open: "+this.state);
+      this.state.open();
+      addChild(this.state);
+    }
+  }
+} // Main
+
+} // package
+
+import flash.display.Bitmap;
+import flash.media.Sound;
+import flash.ui.Keyboard;
+import foo.GameState;
+import foo.Actor;
+import foo.ActorActionEvent;
+import foo.Scene;
+import foo.TileMap;
+
+class GameState1 extends GameState
 {
   // Background image: 
   [Embed(source="../../assets/background.png", mimeType="image/png")]
@@ -49,74 +122,45 @@ public class Main extends Sprite
   private static const JumpSoundCls:Class;
   private static const jump:Sound = new JumpSoundCls();
 
-  // Main()
-  public function Main()
-  {
-    stage.addEventListener(KeyboardEvent.KEY_DOWN, OnKeyDown);
-    stage.addEventListener(KeyboardEvent.KEY_UP, OnKeyUp);
-    stage.addEventListener(Event.ENTER_FRAME, OnEnterFrame);
-    stage.scaleMode = StageScaleMode.NO_SCALE;
-
-    init(0);
-  }
-
-  // OnKeyDown(e)
-  protected function OnKeyDown(e:KeyboardEvent):void 
-  {
-    keydown(e.keyCode);
-  }
-
-  // OnKeyUp(e)
-  protected function OnKeyUp(e:KeyboardEvent):void 
-  {
-    keyup(e.keyCode);
-  }
-
-  // OnEnterFrame(e)
-  protected function OnEnterFrame(e:Event):void
-  {
-    if (!paused) {
-      update();
-    }
-  }
-
   /// Game-related functions
 
-  private var state:int = 0;	// 0:title, 1:main
-  private var paused:Boolean;
   private var scene:Scene;
   private var tilemap:TileMap;
   private var player:Actor;
 
-  // init(state)
-  private function init(state:int):void
+  public function GameState1(width:int, height:int)
   {
-    removeChildren();
-    addChild(new Logger());
+    tilemap = new TileMap(mapimage.bitmapData, tilesimage.bitmapData, 32);
+    scene = new Scene(width, height, tilemap);
+    player = new Actor(scene, playerimage);
+    scene.add(player);
+  }
 
-    Logger.log("init "+state);
+  // open()
+  public override function open():void
+  {
+    addChild(background);
+    addChild(tilemap);
+    addChild(scene);
+  }
 
-    switch (state) {
-    case 0:
-      break;
+  // close()
+  public override function close():void
+  {
+    removeChild(background);
+    removeChild(tilemap);
+    removeChild(scene);
+  }
 
-    case 1:
-      tilemap = new TileMap(mapimage.bitmapData, tilesimage.bitmapData, 32);
-      scene = new Scene(stage.stageWidth, stage.stageHeight, tilemap);
-      player = new Actor(scene, playerimage);
-      scene.add(player);
-      addChild(background);
-      addChild(tilemap);
-      addChild(scene);
-      paused = false;
-      break;
-    }
-
-    this.state = state;
+  // update()
+  public override function update():void
+  {
+    scene.update();
+    scene.repaint();
   }
 
   // keydown(keycode)
-  private function keydown(keycode:int):void
+  public override function keydown(keycode:int):void
   {
     switch (keycode) {
     case Keyboard.LEFT:
@@ -147,25 +191,14 @@ public class Main extends Sprite
     case Keyboard.ENTER:
     case 88:			// X
     case 90:			// Z
-      if (state == 0) {
-	init(1);
-      }
+      jump.play();
       break;
 
-    case Keyboard.ESCAPE:	// Esc
-    case 81:			// Q
-      init(0);
-      break;
-
-    case 80:			// P
-      // Toggle pause.
-      paused = !paused;
-      break;
     }
   }
 
   // keyup(keycode)
-  private function keyup(keycode:int):void 
+  public override function keyup(keycode:int):void 
   {
     switch (keycode) {
     case Keyboard.LEFT:
@@ -188,13 +221,6 @@ public class Main extends Sprite
     }
   }
 
-  // update()
-  private function update():void
-  {
-    scene.update();
-    scene.repaint();
-  }
-
   // onActorAction()
   private function onActorAction(e:ActorActionEvent):void
   {
@@ -202,7 +228,4 @@ public class Main extends Sprite
       scene.remove(Actor(e.currentTarget));
     }
   }
-
-} // Main
-
-} // package
+}
