@@ -9,6 +9,7 @@ Author: euske (Yusuke Shinyama)
 How to run:
 
 1. Open the main.html file.
+   (If you have a Debug Flash Player, open main.swf file directly.)
 
 
 --
