@@ -1,7 +1,7 @@
 ascs (ActionScript Cheat Sheet)
 README.txt
 
-A tiny framework for making games.
+A minimalistic framework for making games.
 
 Author: euske (Yusuke Shinyama)
 
@@ -27,7 +27,7 @@ How to build:
      flex_sdk4\
      (this directory)\
 
-4. Run build.bat file.
+4. Run build.bat file or Makefile (on Unix).
 
 5. (Optional)
    To use the trace functionality (for debugging), you need to
