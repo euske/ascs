@@ -4,7 +4,7 @@ import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.geom.Point;
 import flash.geom.Rectangle;
-import Tile;
+import flash.utils.Dictionary;
 
 //  TileMap
 //
@@ -14,6 +14,7 @@ public class TileMap extends Bitmap
   public var tiles:BitmapData;
   public var tilesize:int;
 
+  private var _tilevalue:Dictionary;
   private var _prevrect:Rectangle;
 
   // TileMap(map, tiles, tilesize, width, height)
@@ -25,6 +26,13 @@ public class TileMap extends Bitmap
     this.tiles = tiles;
     this.tilesize = tilesize;
     this._prevrect = new Rectangle(-1,-1,0,0);
+    this._tilevalue = new Dictionary();
+    for (var i:int = 0; i < map.width; i++) {
+      var c:uint = map.getPixel(i, 0);
+      if (this._tilevalue[c] === undefined) {
+	this._tilevalue[c] = i;
+      }
+    }
   }
 
   // mapwidth
@@ -35,7 +43,7 @@ public class TileMap extends Bitmap
   // mapheight
   public function get mapheight():int
   {
-    return map.height;
+    return map.height-1;
   }
 
   // repaint(window)
@@ -79,11 +87,11 @@ public class TileMap extends Bitmap
   public function getTile(x:int, y:int):int
   {
     if (x < 0 || map.width <= x || 
-	y < 0 || map.height <= y) {
+	y < 0 || map.height <= y+1) {
       return -1;
     }
-    var c:uint = map.getPixel(x, y);
-    return Tile.pixelToTileId(c);
+    var c:uint = map.getPixel(x, y+1);
+    return _tilevalue[c];
   }
 
   // getTileRect(x, y)
