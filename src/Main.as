@@ -10,7 +10,7 @@ import flash.text.TextField;
 import flash.text.TextFieldType;
 import flash.ui.Keyboard;
 import GameState;
-import AtariFont;
+import Font;
 
 //  Main 
 //
@@ -21,9 +21,9 @@ public class Main extends Sprite
 
   private var _state:GameState;
   private var _paused:Boolean;
-  private var _keydown:Boolean;
+  private var _keydown:int;
 
-  public static var Font:AtariFont = new AtariFont();
+  public static var font:Font = new Font();
 
   // Main()
   public function Main()
@@ -42,7 +42,7 @@ public class Main extends Sprite
     _logger.height = 100;
     _logger.background = true;
     _logger.type = TextFieldType.DYNAMIC;
-    addChild(_logger);
+    //addChild(_logger);
 
     init();
   }
@@ -52,7 +52,9 @@ public class Main extends Sprite
   {
     _logger.appendText(x+"\n");
     _logger.scrollV = _logger.maxScrollV;
-    _logger.parent.setChildIndex(_logger, _logger.parent.numChildren-1);
+    if (_logger.parent != null) {
+      _logger.parent.setChildIndex(_logger, _logger.parent.numChildren-1);
+    }
   }
 
   // setPauseState(paused)
@@ -67,26 +69,35 @@ public class Main extends Sprite
     if (_state != null) {
       log("close: "+_state);
       _state.close();
-      _state.removeEventListener(GameState.CHANGED, onStateChanged);
+      _state.removeEventListener(GameStateEvent.CHANGED, onStateChanged);
       removeChild(_state);
     }
     _state = state;
     if (_state != null) {
       log("open: "+_state);
       _state.open();
-      _state.addEventListener(GameState.CHANGED, onStateChanged);
+      _state.addEventListener(GameStateEvent.CHANGED, onStateChanged);
       addChild(_state);
     }
   }
 
-  // onStateChanged(e)
-  private function onStateChanged(e:Event):void
+  // createGameState(name)
+  private function createGameState(name:String):GameState
   {
-    if (e.currentTarget is TitleState) {
-      setGameState(new MainState(stage.stageWidth, stage.stageHeight));
-    } else {
-      setGameState(new TitleState(stage.stageWidth, stage.stageHeight));
+    switch (name) {
+    case "title":
+      return new TitleState(stage.stageWidth, stage.stageHeight);
+    case "main":
+      return new MainState(stage.stageWidth, stage.stageHeight);
+    default:
+      return null;
     }
+  }
+
+  // onStateChanged(e)
+  private function onStateChanged(e:GameStateEvent):void
+  {
+    setGameState(createGameState(e.name));
   }
 
   // OnActivate(e)
@@ -114,8 +125,8 @@ public class Main extends Sprite
   // OnKeyDown(e)
   protected function OnKeyDown(e:KeyboardEvent):void 
   {
-    if (_keydown) return;
-    _keydown = true;
+    if (_keydown == e.keyCode) return;
+    _keydown = e.keyCode;
     switch (e.keyCode) {
     case 80:			// P
       setPauseState(!_paused);
@@ -136,15 +147,16 @@ public class Main extends Sprite
   // OnKeyUp(e)
   protected function OnKeyUp(e:KeyboardEvent):void 
   {
-    _keydown = false;
+    _keydown = 0;
     if (_state != null) {
       _state.keyup(e.keyCode);
     }
   }
 
-  protected function init():void
+  // init()
+  protected virtual function init():void
   {
-    setGameState(new TitleState(stage.stageWidth, stage.stageHeight));
+    setGameState(createGameState("title"));
   }
 
 }

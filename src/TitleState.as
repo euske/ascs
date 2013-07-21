@@ -13,7 +13,7 @@ public class TitleState extends GameState
 
   public function TitleState(width:int, height:int)
   {
-    text = Main.Font.render("GAME\nPRESS ENTER TO START", 0x0000ff, 2);
+    text = Main.font.create("GAME\nPRESS ENTER TO START", 0xffffff, 2, 2);
     text.x = (width-text.width)/2;
     text.y = (height-text.height)/2;
   }
@@ -38,7 +38,7 @@ public class TitleState extends GameState
     case Keyboard.ENTER:
     case 88:			// X
     case 90:			// Z
-      dispatchEvent(new Event(CHANGED));
+      dispatchEvent(new GameStateEvent("main"));
       break;
 
     }

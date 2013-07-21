@@ -6,8 +6,6 @@ import flash.display.Sprite;
 //
 public class GameState extends Sprite
 {
-  public static const CHANGED:String = "GameState.CHANGED";
-
   // open()
   public virtual function open():void
   {
