@@ -10,7 +10,8 @@ import Actor;
 // 
 public class Scene extends Sprite
 {
-  private var _tilemap:TileMap;
+  public var tilemap:TileMap;
+
   private var _window:Rectangle;
   private var _mapsize:Point;
 
@@ -20,8 +21,8 @@ public class Scene extends Sprite
   // Scene(width, height, tilemap)
   public function Scene(width:int, height:int, tilemap:TileMap)
   {
+    this.tilemap = tilemap;
     _window = new Rectangle(0, 0, width, height);
-    _tilemap = tilemap;
     _mapsize = new Point(tilemap.mapwidth*tilemap.tilesize,
 			 tilemap.mapheight*tilemap.tilesize);
   }
@@ -54,7 +55,7 @@ public class Scene extends Sprite
     for each (var actor:Actor in actors) {
       actor.repaint();
     }
-    _tilemap.repaint(_window);
+    tilemap.repaint(_window);
   }
 
   // setCenter(p)

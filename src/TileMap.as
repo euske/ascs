@@ -25,12 +25,12 @@ public class TileMap extends Bitmap
     this.map = map;
     this.tiles = tiles;
     this.tilesize = tilesize;
-    this._prevrect = new Rectangle(-1,-1,0,0);
-    this._tilevalue = new Dictionary();
+    _prevrect = new Rectangle(-1,-1,0,0);
+    _tilevalue = new Dictionary();
     for (var i:int = 0; i < map.width; i++) {
       var c:uint = map.getPixel(i, 0);
-      if (this._tilevalue[c] === undefined) {
-	this._tilevalue[c] = i;
+      if (_tilevalue[c] === undefined) {
+	_tilevalue[c] = i;
       }
     }
   }
@@ -94,24 +94,74 @@ public class TileMap extends Bitmap
     return _tilevalue[c];
   }
 
+  // scanTile(x0, x1, y0, y1, f)
+  public function scanTile(x0:int, x1:int, y0:int, y1:int, f:Function):Array
+  {
+    var a:Array = new Array();
+    var dx:int = Math.abs(x1+1-x0);
+    var dy:int = Math.abs(y1+1-y0);
+    var vx:int = (x0 < x1)? +1 : -1;
+    var vy:int = (y0 < y1)? +1 : -1;
+    var n:int = Math.max(dx, dy);
+    for (var i:int = 0; i < n; i++) {
+      for (var j:int = 0; j <= i; j++) {
+	if (j < dx && (i-j) < dy) {
+	  var x:int = x0+j*vx;
+	  var y:int = y0+(i-j)*vy;
+	  if (f(getTile(x, y))) {
+	    a.push(new Point(x, y));
+	  }
+	}
+      }
+    }
+    return a;
+  }
+
+  // hasTile(x0, x1, y0, y1, f)
+  public function hasTile(x0:int, x1:int, y0:int, y1:int, f:Function):Boolean
+  {
+    return (scanTile(x0, x1, y0, y1, f).length != 0);
+  }
+
   // getTileRect(x, y)
   public function getTileRect(x:int, y:int):Rectangle
   {
     return new Rectangle(x*tilesize, y*tilesize, tilesize, tilesize);
   }
-  
-  // hasTile(x0, x1, y0, y1, f)
-  public function hasTile(x0:int, x1:int, y0:int, y1:int, f:Function):Point
+
+  // getTileCoords(x, y)
+  public function getTileCoords(r:Rectangle):Rectangle
   {
-    var dx:int = (x1 < x0)? -1 : +1;
-    var dy:int = (y1 < y0)? -1 : +1;
-    for (var y:int = y0; y != y1; y += dy) {
-      for (var x:int = x0; x != x1; x += dx) {
-	if (f(getTile(x, y))) return new Point(x, y);
-      }
-    }
-    return null;
+    var x0:int = Math.floor(r.left/tilesize);
+    var y0:int = Math.floor(r.top/tilesize);
+    var x1:int = Math.floor(r.right/tilesize);
+    var y1:int = Math.floor(r.bottom/tilesize);
+    return new Rectangle(x0, y0, x1+1-x0, y1+1-y0);
   }
+
+  // hasTileCoords(r, f)
+  public function hasTileCoords(r:Rectangle, f:Function):Boolean
+  {
+    var r1:Rectangle = getTileCoords(r);
+    return hasTile(r1.left, r1.right, r1.top, r1.bottom, f);
+  }
+
+  // getCollisionCoords(r, f)
+  public function getCollisionCoords(r:Rectangle, v:Point, f:Function):Point
+  {
+    var src:Rectangle = r.clone();
+    src.x += v.x;
+    src.y += v.y;
+    src = src.union(r);
+    var r1:Rectangle = getTileCoords(src);
+    var a:Array = scanTile(r1.left, r1.right, r1.top, r1.bottom, f);
+    for each (var p:Point in a) {
+      var t:Rectangle = getTileRect(p.x, p.y);
+      v = Utils.collideRect(t, r, v);
+    }
+    return v;
+  }
+
 }
 
 } // package

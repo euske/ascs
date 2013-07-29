@@ -4,6 +4,7 @@ import flash.display.Sprite;
 import flash.display.Bitmap;
 import flash.events.Event;
 import flash.geom.Point;
+import flash.geom.Rectangle;
 
 //  Actor
 //
@@ -12,7 +13,7 @@ public class Actor extends Sprite
   public var scene:Scene;
   public var skin:Bitmap;
   public var pos:Point;
-  public var vx:int, vy:int;
+  public var v:Point;
 
   // Actor(scene, image)
   public function Actor(scene:Scene, skin:Bitmap)
@@ -20,21 +21,24 @@ public class Actor extends Sprite
     this.scene = scene;
     this.skin = skin;
     this.pos = new Point(0, 0);
+    this.v = new Point(0, 0);
     addChild(this.skin);
   }
 
-  // move(vx, vy)
-  public function move(vx:int, vy:int):void
+  // bounds
+  public function get bounds():Rectangle
   {
-    this.vx = vx;
-    this.vy = vy;
+    return new Rectangle(pos.x, pos.y, skin.width, skin.height);
   }
 
   // update()
+  public static var isstoppable:Function = 
+    (function (b:int):Boolean { return b != 0; });
   public virtual function update():void
   {
-    pos.x += vx;
-    pos.y += vy;
+    v = scene.tilemap.getCollisionCoords(bounds, v, isstoppable);
+    pos.x += v.x;
+    pos.y += v.y;
   }
 
   // repaint()
