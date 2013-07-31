@@ -15,23 +15,23 @@ public class Player extends Actor
 
   public function get vx():int
   {
-    return v.x;
+    return vel.x;
   }
   public function set vx(value:int):void
   {
-    v.x = value * 4;
+    vel.x = value * 4;
   }
   public function get vy():int
   {
-    return v.y;
+    return vel.y;
   }
   public function set vy(value:int):void
   {
-    v.y = value * 4;
+    vel.y = value * 4;
   }
 
-  // jump()
-  public function jump():void
+  // action()
+  public function action():void
   {
   }
 }

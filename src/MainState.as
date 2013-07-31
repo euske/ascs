@@ -100,7 +100,7 @@ public class MainState extends GameState
     case Keyboard.ENTER:
     case 88:			// X
     case 90:			// Z
-      player.jump();
+      player.action();
       break;
 
     }

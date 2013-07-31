@@ -13,7 +13,7 @@ public class Actor extends Sprite
   public var scene:Scene;
   public var skin:Bitmap;
   public var pos:Point;
-  public var v:Point;
+  public var vel:Point;
 
   // Actor(scene, image)
   public function Actor(scene:Scene, skin:Bitmap)
@@ -21,24 +21,25 @@ public class Actor extends Sprite
     this.scene = scene;
     this.skin = skin;
     this.pos = new Point(0, 0);
-    this.v = new Point(0, 0);
+    this.vel = new Point(0, 0);
     addChild(this.skin);
+    this.skin.x = -this.skin.width/2;
+    this.skin.y = -this.skin.height/2;
   }
 
   // bounds
-  public function get bounds():Rectangle
+  public virtual function get bounds():Rectangle
   {
-    return new Rectangle(pos.x, pos.y, skin.width, skin.height);
+    return new Rectangle(pos.x+skin.x, pos.y+skin.y, skin.width, skin.height);
   }
 
   // update()
-  public static var isstoppable:Function = 
-    (function (b:int):Boolean { return b != 0; });
   public virtual function update():void
   {
-    v = scene.tilemap.getCollisionCoords(bounds, v, isstoppable);
-    pos.x += v.x;
-    pos.y += v.y;
+    var isstoppable:Function = (function (b:int):Boolean { return b != 0; });
+    vel = scene.tilemap.getCollisionCoords(bounds, vel, isstoppable);
+    pos.x += vel.x;
+    pos.y += vel.y;
   }
 
   // repaint()
