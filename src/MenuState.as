@@ -5,29 +5,19 @@ import flash.events.Event;
 import flash.ui.Keyboard;
 import GameState;
 
-//  TitleState
+//  MenuState
 // 
-public class TitleState extends GameState
+public class MenuState extends GameState
 {
-  private var text:Bitmap;
+  public static const NAME:String = "MenuState";
 
-  public function TitleState(width:int, height:int)
+  public function MenuState(width:int, height:int)
   {
+    var text:Bitmap;
     text = Main.font.create("GAME\nPRESS ENTER TO START", 0xffffff, 2, 2);
-    text.x = (width-text.width)/2;
-    text.y = (height-text.height)/2;
-  }
-
-  // open()
-  public override function open():void
-  {
+    text.x = Math.floor(width-text.width)/2;
+    text.y = Math.floor(height-text.height)/2;
     addChild(text);
-  }
-
-  // close()
-  public override function close():void
-  {
-    removeChild(text);
   }
 
   // keydown(keycode)
@@ -38,7 +28,7 @@ public class TitleState extends GameState
     case Keyboard.ENTER:
     case 88:			// X
     case 90:			// Z
-      dispatchEvent(new GameStateEvent("main"));
+      dispatchEvent(new GameStateEvent(MainState.NAME));
       break;
 
     }

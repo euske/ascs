@@ -2,17 +2,14 @@ package {
 
 import flash.display.Bitmap;
 import flash.events.Event;
-import flash.media.Sound;
 import flash.ui.Keyboard;
-import GameState;
-import Actor;
-import Scene;
-import TileMap;
 
 //  MainState
 //
 public class MainState extends GameState
 {
+  public static const NAME:String = "MainState";
+  
   // Tile image:
   [Embed(source="../assets/tiles.png", mimeType="image/png")]
   private static const TilesImageCls:Class;
@@ -28,11 +25,6 @@ public class MainState extends GameState
   private static const PlayerImageCls:Class;
   private static const playerimage:Bitmap = new PlayerImageCls();
 
-  // Sound:
-  [Embed(source="../assets/sound.mp3")]
-  private static const JumpSoundCls:Class;
-  private static const jump:Sound = new JumpSoundCls();
-
   /// Game-related functions
 
   private var scene:Scene;
@@ -44,6 +36,7 @@ public class MainState extends GameState
     tilemap = new TileMap(mapimage.bitmapData, tilesimage.bitmapData, 32);
     scene = new Scene(width, height, tilemap);
     player = new Player(scene, playerimage);
+    player.bounds = tilemap.getTileRect(3, 3);
     scene.add(player);
   }
 

@@ -3,8 +3,6 @@ package {
 import flash.display.Sprite;
 import flash.geom.Point;
 import flash.geom.Rectangle;
-import TileMap;
-import Actor;
 
 //  Scene
 // 

@@ -2,11 +2,17 @@ package {
 
 import flash.display.Sprite;
 import flash.display.Bitmap;
+import flash.media.Sound;
 
 //  Player
 //
 public class Player extends Actor
 {
+  // Sound:
+  [Embed(source="../assets/sound.mp3")]
+  private static const JumpSoundCls:Class;
+  private static const jump:Sound = new JumpSoundCls();
+
   // Player(scene, image)
   public function Player(scene:Scene, skin:Bitmap)
   {
@@ -33,6 +39,7 @@ public class Player extends Actor
   // action()
   public function action():void
   {
+    jump.play();
   }
 }
 

@@ -9,8 +9,6 @@ import flash.events.KeyboardEvent;
 import flash.text.TextField;
 import flash.text.TextFieldType;
 import flash.ui.Keyboard;
-import GameState;
-import Font;
 
 //  Main 
 //
@@ -85,9 +83,9 @@ public class Main extends Sprite
   private function createGameState(name:String):GameState
   {
     switch (name) {
-    case "title":
-      return new TitleState(stage.stageWidth, stage.stageHeight);
-    case "main":
+    case MenuState.NAME:
+      return new MenuState(stage.stageWidth, stage.stageHeight);
+    case MainState.NAME:
       return new MainState(stage.stageWidth, stage.stageHeight);
     default:
       return null;
@@ -156,7 +154,7 @@ public class Main extends Sprite
   // init()
   protected virtual function init():void
   {
-    setGameState(createGameState("title"));
+    setGameState(createGameState(MenuState.NAME));
   }
 
 }

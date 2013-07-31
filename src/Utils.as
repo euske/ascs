@@ -7,6 +7,7 @@ import flash.geom.Rectangle;
 // 
 public class Utils
 {
+  // Computes the collision of two horizontal lines.
   private static function collideHLine(x0:int, x1:int, y:int, r:Rectangle, v:Point):Point
   {
     var dy:int;
@@ -27,6 +28,7 @@ public class Utils
     return new Point(dx, dy);
   }
 
+  // Computes the collision of two vertical lines.
   private static function collideVLine(y0:int, y1:int, x:int, r:Rectangle, v:Point):Point
   {
     var dx:int;
@@ -47,6 +49,9 @@ public class Utils
     return new Point(dx, dy);
   }
 
+  // Trims vector v to v' such that Rectangle r0 doesn't overlap with r1 
+  // when it moves by v'.
+  // Note: r0 and r1 should not be overlapping.
   public static function collideRect(r0:Rectangle, r1:Rectangle, v:Point):Point
   {
     if (0 < v.x) {
