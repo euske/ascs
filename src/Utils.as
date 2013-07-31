@@ -17,8 +17,11 @@ public class Utils
     } else {
       return v;
     }
+    // assert(v.y != 0);
     var dx:int = Math.floor(v.x*dy / v.y);
-    if (x1+dx < r.left || r.right < x0+dx) {
+    if ((v.x <= 0 && x1+dx <= r.left) ||
+	(0 <= v.x && r.right <= x0+dx) ||
+	(x1+dx < r.left || r.right < x0+dx)) {
       return v;
     }
     return new Point(dx, dy);
@@ -34,8 +37,11 @@ public class Utils
     } else {
       return v;
     }
+    // assert(v.x != 0);
     var dy:int = Math.floor(v.y*dx / v.x);
-    if (y1+dy < r.top || r.bottom < y0+dy) {
+    if ((v.y <= 0 && y1+dy <= r.top) ||
+	(0 <= v.y && r.bottom <= y0+dy) ||
+	(y1+dy < r.top || r.bottom < y0+dy)) {
       return v;
     }
     return new Point(dx, dy);
@@ -43,14 +49,14 @@ public class Utils
 
   public static function collideRect(r0:Rectangle, r1:Rectangle, v:Point):Point
   {
-    if (0 < v.x && r1.right <= r0.left) {
+    if (0 < v.x) {
       v = collideVLine(r1.top, r1.bottom, r1.right, r0, v);
-    } else if (v.x < 0 && r0.right <= r1.left) {
+    } else if (v.x < 0) {
       v = collideVLine(r1.top, r1.bottom, r1.left, r0, v);
     }
-    if (0 < v.y && r1.bottom <= r0.top) {
+    if (0 < v.y) {
       v = collideHLine(r1.left, r1.right, r1.bottom, r0, v);
-    } else if (v.y < 0 && r0.bottom <= r1.top) {
+    } else if (v.y < 0) {
       v = collideHLine(r1.left, r1.right, r1.top, r0, v);
     }
     return v;
