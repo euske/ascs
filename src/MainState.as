@@ -35,23 +35,22 @@ public class MainState extends GameState
   {
     tilemap = new TileMap(mapimage.bitmapData, tilesimage.bitmapData, 32);
     scene = new Scene(width, height, tilemap);
-    player = new Player(scene, playerimage);
-    player.bounds = tilemap.getTileRect(3, 3);
+    player = new Player(scene);
+    player.skin = playerimage;
     scene.add(player);
+    addChild(tilemap);
+    addChild(scene);
   }
 
   // open()
   public override function open():void
   {
-    addChild(tilemap);
-    addChild(scene);
+    player.bounds = tilemap.getTileRect(3, 3);
   }
 
   // close()
   public override function close():void
   {
-    removeChild(tilemap);
-    removeChild(scene);
   }
 
   // update()

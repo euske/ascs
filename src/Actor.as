@@ -1,7 +1,7 @@
 package {
 
 import flash.display.Sprite;
-import flash.display.Bitmap;
+import flash.display.DisplayObject;
 import flash.events.Event;
 import flash.geom.Point;
 import flash.geom.Rectangle;
@@ -11,26 +11,40 @@ import flash.geom.Rectangle;
 public class Actor extends Sprite
 {
   public var scene:Scene;
-  public var skin:Bitmap;
   public var pos:Point;
   public var vel:Point;
+  private var _skin:DisplayObject;
 
-  // Actor(scene, image)
-  public function Actor(scene:Scene, skin:Bitmap)
+  // Actor(scene)
+  public function Actor(scene:Scene)
   {
     this.scene = scene;
-    this.skin = skin;
     this.pos = new Point(0, 0);
     this.vel = new Point(0, 0);
-    addChild(this.skin);
-    this.skin.x = -Math.floor(this.skin.width/2);
-    this.skin.y = -Math.floor(this.skin.height/2);
+  }
+
+  // skin
+  public virtual function get skin():DisplayObject
+  {
+    return _skin;
+  }
+  public virtual function set skin(value:DisplayObject):void
+  {
+    if (_skin != null) {
+      removeChild(_skin);
+    }
+    _skin = value;
+    if (_skin != null) {
+      addChild(_skin);
+      _skin.x = -Math.floor(_skin.width/2);
+      _skin.y = -Math.floor(_skin.height/2);
+    }
   }
 
   // bounds
   public virtual function get bounds():Rectangle
   {
-    return new Rectangle(pos.x+skin.x, pos.y+skin.y, skin.width, skin.height);
+    return new Rectangle(pos.x+_skin.x, pos.y+_skin.y, _skin.width, _skin.height);
   }
   public virtual function set bounds(value:Rectangle):void
   {
@@ -42,7 +56,7 @@ public class Actor extends Sprite
   public virtual function update():void
   {
     var isstoppable:Function = (function (b:int):Boolean { return b != 0; });
-    vel = scene.tilemap.getCollisionByRect(bounds, vel, isstoppable);
+    var v:Point = scene.tilemap.getCollisionByRect(bounds, vel, isstoppable);
     pos.x += vel.x;
     pos.y += vel.y;
   }
