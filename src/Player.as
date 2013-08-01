@@ -10,7 +10,7 @@ import flash.geom.Point;
 public class Player extends Actor
 {
   // Sound:
-  [Embed(source="../assets/sound.mp3")]
+  [Embed(source="../assets/jump.mp3")]
   private static const JumpSoundCls:Class;
   private static const jump:Sound = new JumpSoundCls();
 
@@ -55,8 +55,10 @@ public class Player extends Actor
   // action()
   public function action():void
   {
-    vg = jumpacc;
-    jump.play();
+    if (vg == 0) {
+      vg = jumpacc;
+      jump.play();
+    }
   }
 }
 
