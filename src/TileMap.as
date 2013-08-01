@@ -155,6 +155,7 @@ public class TileMap extends Bitmap
     src = src.union(r);
     var r1:Rectangle = getTileByRect(src);
     var a:Array = scanTile(r1.left, r1.right, r1.top, r1.bottom, f);
+    v = v.clone();
     for each (var p:Point in a) {
       var t:Rectangle = getTileRect(p.x, p.y);
       v = Utils.collideRect(t, r, v);

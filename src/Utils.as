@@ -54,7 +54,6 @@ public class Utils
   // Note: r0 and r1 should not be overlapping.
   public static function collideRect(r0:Rectangle, r1:Rectangle, v:Point):Point
   {
-    v = v.clone();
     if (0 < v.x) {
       v = collideVLine(r1.top, r1.bottom, r1.right, r0, v);
     } else if (v.x < 0) {
