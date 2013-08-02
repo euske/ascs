@@ -12,7 +12,6 @@ public class Actor extends Sprite
 {
   public var scene:Scene;
   public var pos:Point;
-  public var vel:Point;
   private var _skin:DisplayObject;
 
   // Actor(scene)
@@ -20,7 +19,6 @@ public class Actor extends Sprite
   {
     this.scene = scene;
     this.pos = new Point(0, 0);
-    this.vel = new Point(0, 0);
   }
 
   // skin
@@ -52,13 +50,16 @@ public class Actor extends Sprite
     pos.y = Math.floor((value.top+value.bottom)/2);
   }
 
+  // move(v)
+  public function move(v:Point):void
+  {
+    pos.x += v.x;
+    pos.y += v.y;
+  }
+
   // update()
   public virtual function update():void
   {
-    var isstoppable:Function = (function (b:int):Boolean { return b != 0; });
-    var v:Point = scene.tilemap.getCollisionByRect(bounds, vel, isstoppable);
-    pos.x += vel.x;
-    pos.y += vel.y;
   }
 
   // repaint()

@@ -57,6 +57,7 @@ public class MainState extends GameState
   public override function update():void
   {
     scene.update();
+    scene.setCenter(player.pos, 100, 100);
     scene.repaint();
   }
 

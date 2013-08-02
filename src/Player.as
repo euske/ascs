@@ -17,6 +17,7 @@ public class Player extends Actor
   public const speed:int = 8;
   public const gravity:int = 2;
   public const jumpacc:int = -24;
+  public const maxacc:int = 16;
 
   public var vx:int = 0;
   public var vy:int = 0;
@@ -33,23 +34,18 @@ public class Player extends Actor
   public override function update():void
   {
     var isstoppable:Function = (function (b:int):Boolean { return b != 0; });
+    var isobstacle:Function = (function (b:int):Boolean { return b < 0 || b == 1; });
 
-    var v0:Point = new Point(vx*speed, vg+gravity);
-    var v:Point = scene.tilemap.getCollisionByRect(bounds, v0, isstoppable);
-    pos.x += v.x;
-    pos.y += v.y;
-    v0.x -= v.x;
-    v0.y -= v.y;
-    vg = v.y;
-
-    v = new Point(v0.x, 0);
-    v = scene.tilemap.getCollisionByRect(bounds, v, isstoppable);
-    pos.x += v.x;
-    pos.y += v.y;
-    v = new Point(0, v0.y);
-    v = scene.tilemap.getCollisionByRect(bounds, v, isstoppable);
-    pos.x += v.x;
-    pos.y += v.y;
+    vg += gravity;
+    if (maxacc < vg) {
+      vg = maxacc;
+    }
+    var v0:Point = new Point(vx*speed, vg);
+    var v1:Point = scene.tilemap.getCollisionByRect(bounds, v0, isstoppable);
+    move(v1);
+    move(scene.tilemap.getCollisionByRect(bounds, new Point(v0.x-v1.x, 0), isobstacle));
+    move(scene.tilemap.getCollisionByRect(bounds, new Point(0, v0.y-v1.y), isobstacle));
+    vg = v1.y;
   }
 
   // action()
