@@ -18,7 +18,7 @@ public class Actor extends Sprite
   public function Actor(scene:Scene)
   {
     this.scene = scene;
-    this.pos = new Point(0, 0);
+    pos = new Point(0, 0);
   }
 
   // skin

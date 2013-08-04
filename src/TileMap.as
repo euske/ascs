@@ -146,7 +146,7 @@ public class TileMap extends Bitmap
     return hasTile(r1.left, r1.right, r1.top, r1.bottom, f);
   }
 
-  // getCollisionByRect(r, f)
+  // getCollisionByRect(r, v, f)
   public function getCollisionByRect(r:Rectangle, v:Point, f:Function):Point
   {
     var src:Rectangle = r.clone();
@@ -160,6 +160,13 @@ public class TileMap extends Bitmap
       v = Utils.collideRect(t, r, v);
     }
     return v;
+  }
+
+  // hasCollisionByRect(r, v, f)
+  public function hasCollisionByRect(r:Rectangle, v0:Point, f:Function):Boolean
+  {
+    var v1:Point = getCollisionByRect(r, v0, f);
+    return (v0.x != v1.x || v0.y != v1.y);
   }
 
 }

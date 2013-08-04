@@ -23,6 +23,11 @@ public class Player extends Actor
   public var vy:int = 0;
   private var vg:int;
 
+  private static var isstoppable:Function = 
+    (function (b:int):Boolean { return b != 0; });
+  private static var isobstacle:Function =
+    (function (b:int):Boolean { return b < 0 || b == 1; });
+
   // Player(scene)
   public function Player(scene:Scene)
   {
@@ -33,25 +38,19 @@ public class Player extends Actor
   // update()
   public override function update():void
   {
-    var isstoppable:Function = (function (b:int):Boolean { return b != 0; });
-    var isobstacle:Function = (function (b:int):Boolean { return b < 0 || b == 1; });
-
-    vg += gravity;
-    if (maxacc < vg) {
-      vg = maxacc;
-    }
-    var v0:Point = new Point(vx*speed, vg);
+    var v0:Point = new Point(vx*speed, Math.min(maxacc, vg+gravity));
     var v1:Point = scene.tilemap.getCollisionByRect(bounds, v0, isstoppable);
     move(v1);
     move(scene.tilemap.getCollisionByRect(bounds, new Point(v0.x-v1.x, 0), isobstacle));
-    move(scene.tilemap.getCollisionByRect(bounds, new Point(0, v0.y-v1.y), isobstacle));
-    vg = v1.y;
+    var v2:Point = scene.tilemap.getCollisionByRect(bounds, new Point(0, v0.y-v1.y), isstoppable);
+    move(v2);
+    vg = v1.y+v2.y;
   }
 
   // action()
   public function action():void
   {
-    if (vg == 0) {
+    if (scene.tilemap.hasCollisionByRect(bounds, new Point(0, 1), isstoppable)) {
       vg = jumpacc;
       jump.play();
     }
