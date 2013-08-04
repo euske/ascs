@@ -134,9 +134,9 @@ public class TileMap extends Bitmap
   {
     var x0:int = Math.floor(r.left/tilesize);
     var y0:int = Math.floor(r.top/tilesize);
-    var x1:int = Math.floor(r.right/tilesize);
-    var y1:int = Math.floor(r.bottom/tilesize);
-    return new Rectangle(x0, y0, x1+1-x0, y1+1-y0);
+    var x1:int = Math.floor((r.right+tilesize-1)/tilesize);
+    var y1:int = Math.floor((r.bottom+tilesize-1)/tilesize);
+    return new Rectangle(x0, y0, x1-x0, y1-y0);
   }
 
   // hasTileByRect(r, f)
@@ -162,11 +162,14 @@ public class TileMap extends Bitmap
     return v;
   }
 
-  // hasCollisionByRect(r, v, f)
-  public function hasCollisionByRect(r:Rectangle, v0:Point, f:Function):Boolean
+  // hasCollisionByRect(r, f)
+  public function hasCollisionByRect(r:Rectangle, v:Point, f:Function):Boolean
   {
-    var v1:Point = getCollisionByRect(r, v0, f);
-    return (v0.x != v1.x || v0.y != v1.y);
+    var src:Rectangle = r.clone();
+    src.x += v.x;
+    src.y += v.y;
+    src = src.union(r);
+    return hasTileByRect(r, f);
   }
 
 }
