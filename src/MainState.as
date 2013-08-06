@@ -68,25 +68,25 @@ public class MainState extends GameState
     case Keyboard.LEFT:
     case 65:			// A
     case 72:			// H
-      player.vx = -1;
+      player.dir.x = -1;
       break;
 
     case Keyboard.RIGHT:
     case 68:			// D
     case 76:			// L
-      player.vx = +1;
+      player.dir.x = +1;
       break;
 
     case Keyboard.UP:
     case 87:			// W
     case 75:			// K
-      player.vy = -1;
+      player.dir.y = -1;
       break;
 
     case Keyboard.DOWN:
     case 83:			// S
     case 74:			// J
-      player.vy = +1;
+      player.dir.y = +1;
       break;
 
     case Keyboard.SPACE:
@@ -109,7 +109,7 @@ public class MainState extends GameState
     case 68:			// D
     case 72:			// H
     case 76:			// L
-      player.vx = 0;
+      player.dir.x = 0;
       break;
 
     case Keyboard.UP:
@@ -118,7 +118,7 @@ public class MainState extends GameState
     case 75:			// K
     case 83:			// S
     case 74:			// J
-      player.vy = 0;
+      player.dir.y = 0;
       break;
     }
   }

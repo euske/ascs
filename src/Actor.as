@@ -50,13 +50,6 @@ public class Actor extends Sprite
     pos.y = Math.floor((value.top+value.bottom)/2);
   }
 
-  // move(v)
-  public function move(v:Point):void
-  {
-    pos.x += v.x;
-    pos.y += v.y;
-  }
-
   // update()
   public virtual function update():void
   {
