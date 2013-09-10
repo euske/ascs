@@ -24,16 +24,55 @@ public class Font
 
   // getCharWidth(c)
   //   Returns a width of a character.
-  public function getCharWidth(c:int):int
+  protected function getCharWidth(c:int):int
   {
     return width;
   }
 
+  // getCharHeight(c)
+  //   Returns a height of a character.
+  protected function getCharHeight(c:int):int
+  {
+    return height;
+  }
+
   // getCharOffset(c)
   //   Returns an offset of a character.
-  public function getCharOffset(c:int):int
+  protected function getCharOffset(c:int):int
   {
     return width*(c-32);
+  }
+
+  // getLineSize(text)
+  public function getLineSize(text:String):Point
+  {
+    var size:Point = new Point();
+    for (var i:int = 0; i < text.length; i++) {
+      var c:int = text.charCodeAt(i);
+      size.x += getCharWidth(c);
+      size.y = Math.max(size.y, getCharHeight(c));
+    }
+    return size;
+  }
+
+  // renderLine(bitmapData, text, p)
+  //   Render a text string on a given BitmapData.
+  public function renderLine(bitmapData:BitmapData, text:String, p:Point):Point
+  {
+    p = p.clone();
+    var size:Point = new Point();
+    for (var i:int = 0; i < text.length; i++) {
+      var c:int = text.charCodeAt(i);
+      var w:int = getCharWidth(c);
+      if (w == 0) continue;
+      var h:int = getCharHeight(c);
+      var src:Rectangle = new Rectangle(getCharOffset(c), 0, w, h);
+      bitmapData.copyPixels(fontglyphs, src, p);
+      p.x += w;
+      size.x += w;
+      size.y = Math.max(size.y, h);
+    }
+    return size;
   }
 
   // getTextSize(text, linespace)
@@ -57,11 +96,11 @@ public class Font
     return new Point(mw, h);
   }
 
-  // render(bitmapData, text, linespace)
+  // renderText(bitmapData, text, p, linespace)
   //   Render a text string on a given BitmapData.
-  public function render(bitmapData:BitmapData, text:String, linespace:int=0):void
+  public function renderText(bitmapData:BitmapData, text:String, p:Point, linespace:int=0):void
   {
-    var p:Point = new Point(0, 0);
+    p = p.clone();
     for (var i:int = 0; i < text.length; i++) {
       var c:int = text.charCodeAt(i);
       if (c == 10) {
@@ -77,14 +116,14 @@ public class Font
     }
   }
 
-  // create(text, color, linespace, scale)
+  // createText(text, color, linespace, scale)
   //   Creates a Bitmap with a given string rendered.
-  public function create(text:String, 
-			 color:uint=0xffffff, linespace:int=0, scale:int=1):Bitmap
+  public function createText(text:String, 
+			     color:uint=0xffffff, linespace:int=0, scale:int=1):Bitmap
   {
     var size:Point = getTextSize(text, linespace);
     var bitmapData:BitmapData = new BitmapData(size.x, size.y, true, 0);
-    render(bitmapData, text, linespace);
+    renderText(bitmapData, text, new Point(), linespace);
     var ct:ColorTransform = new ColorTransform();
     ct.color = color;
     bitmapData.colorTransform(bitmapData.rect, ct);

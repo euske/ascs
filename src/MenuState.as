@@ -14,7 +14,7 @@ public class MenuState extends GameState
   public function MenuState(width:int, height:int)
   {
     var text:Bitmap;
-    text = Main.font.create("GAME\nPRESS ENTER TO START", 0xffffff, 2, 2);
+    text = Main.font.createText("GAME\nPRESS ENTER TO START", 0xffffff, 2, 2);
     text.x = Math.floor(width-text.width)/2;
     text.y = Math.floor(height-text.height)/2;
     addChild(text);

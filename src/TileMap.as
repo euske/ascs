@@ -94,6 +94,17 @@ public class TileMap extends Bitmap
     return _tilevalue[c];
   }
 
+  // setTile(x, y)
+  public function setTile(x:int, y:int, v:int):void
+  {
+    if (x < 0 || map.width <= x || 
+	y < 0 || map.height <= y+1) {
+      return;
+    }
+    var c:uint = map.getPixel(v, 0);
+    map.setPixel(x, y+1, c);
+  }
+
   // scanTile(x, y, w, h, f)
   public function scanTile(x:int, y:int, w:int, h:int, f:Function):Array
   {

@@ -16,8 +16,7 @@ public class Player extends Actor
 
   public const speed:int = 8;
   public const gravity:int = 2;
-  public const jumpacc:int = -24;
-  public const maxacc:int = 16;
+  public const jumpacc:int = 24;
 
   public var dir:Point;
   private var vg:int;
@@ -52,14 +51,14 @@ public class Player extends Actor
     // falling (cont'd).
     var vdy:Point = scene.tilemap.getCollisionByRect(bounds, 0, vg-vf.y, isstoppable);
     pos = Utils.movePoint(pos, vdy.x, vdy.y);
-    vg = Math.min(vf.y+vdx.y+vdy.y+gravity, maxacc);
+    vg = Math.min(vf.y+vdx.y+vdy.y+gravity, jumpacc);
   }
 
   // action()
   public function action():void
   {
     if (scene.tilemap.hasCollisionByRect(bounds, 0, vg, isstoppable)) {
-      vg = jumpacc;
+      vg = -jumpacc;
       jump.play();
     }
   }
