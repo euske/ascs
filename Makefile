@@ -1,30 +1,33 @@
 # Makefile
 
-RM=rm -f
-CP=cp -f
-CHMOD=chmod
-RSYNC=rsync -av
+DEL=del /f
+COPY=copy /y
 JAVA=java
-FLEX_HOME=../flex_sdk4
-MXMLC=$(JAVA) -jar $(FLEX_HOME)/lib/mxmlc.jar +flexlib=$(FLEX_HOME)/frameworks
-FDB=$(JAVA) -jar $(FLEX_HOME)/lib/fdb.jar
+START=start "test" /B
+FLEX_HOME=..\flex_sdk4
+
+MXMLC=$(JAVA) -jar $(FLEX_HOME)\lib\mxmlc.jar +flexlib=$(FLEX_HOME)\frameworks
+FDB=$(JAVA) -jar $(FLEX_HOME)\lib\fdb.jar
 
 # Project settings
-CFLAGS=-static-rsls -debug=true
+CFLAGS=-static-rsls
+CFLAGS_DEBUG=-debug=true
 TARGET=main.swf
-LIVE_URL=ludumdare.tabesugi.net:public/cgi/root/host/ludumdare.tabesugi.net/live/live.swf
+TARGET_DEBUG=main_d.swf
 
 all: $(TARGET)
 
 clean:
-	-$(RM) $(TARGET)
+	-$(DEL) $(TARGET) $(TARGET_DEBUG)
 
-update: $(TARGET)
-	$(RSYNC) $(TARGET) $(LIVE_URL)
+run: $(TARGET)
+	$(START) $(TARGET)
 
-debug: $(TARGET)
-	$(FDB) $(TARGET)
+debug: $(TARGET_DEBUG)
+	$(FDB) $(TARGET_DEBUG)
 
-$(TARGET): ./src/*.as ./assets/*.png ./assets/*.mp3
-	$(MXMLC) $(CFLAGS) -compiler.source-path=./src/ -o $@ ./src/Main.as
-	$(CHMOD) +x $(TARGET)
+$(TARGET): .\src\*.as .\assets\*.*
+	$(MXMLC) $(CFLAGS) -compiler.source-path=.\src\ -o $@ .\src\Main.as
+
+$(TARGET_DEBUG): .\src\*.as .\assets\*.*
+	$(MXMLC) $(CFLAGS) $(CFLAGS_DEBUG) -compiler.source-path=.\src\ -o $@ .\src\Main.as

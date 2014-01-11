@@ -1,138 +1,131 @@
 package {
 
-import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flash.utils.Dictionary;
 
-//  TileMap
+//  TileMap class is a two dimensional array that has
+//  various query functions.
 //
-public class TileMap extends Bitmap
+public class TileMap
 {
-  public var map:BitmapData;
-  public var tiles:BitmapData;
+  // bitmap: actual bitmap to hold the 2D array.
+  // The top row is used as a lookup table for tile types.
+  // The color of pixel (0,0) is used as type 0.
+  // The color of pixel (1,0) is used as type 1. etc.
+  public var bitmap:BitmapData;
+
+  // tilesize: the size of each tile.
   public var tilesize:int;
 
+  // _tilevalue: lookup table from a pixel color to a type number.
   private var _tilevalue:Dictionary;
-  private var _prevrect:Rectangle;
+  // _rangecache: cache for range query results.
+  private var _rangecache:Dictionary;
 
-  // TileMap(map, tiles, tilesize, width, height)
-  public function TileMap(map:BitmapData, 
-			  tiles:BitmapData,
+  // TileMap(bitmap, tilesize)
+  public function TileMap(bitmap:BitmapData, 
 			  tilesize:int)
   {
-    this.map = map;
-    this.tiles = tiles;
+    this.bitmap = bitmap;
     this.tilesize = tilesize;
-    _prevrect = new Rectangle(-1,-1,0,0);
+
+    // Construct a lookup table.
+    // The color value at a pixel at (i,0) is used as i-th type.
     _tilevalue = new Dictionary();
-    for (var i:int = 0; i < map.width; i++) {
-      var c:uint = map.getPixel(i, 0);
+    for (var i:int = 0; i < bitmap.width; i++) {
+      var c:uint = bitmap.getPixel(i, 0);
       if (_tilevalue[c] === undefined) {
 	_tilevalue[c] = i;
       }
     }
   }
 
-  // mapwidth
-  public function get mapwidth():int
+  // width: returns the map width.
+  public function get width():int
   {
-    return map.width;
+    return bitmap.width;
   }
-  // mapheight
-  public function get mapheight():int
+  // height: returns the map height.
+  public function get height():int
   {
-    return map.height-1;
-  }
-
-  // repaint(window)
-  public function repaint(window:Rectangle):void
-  {
-    var x0:int = Math.floor(window.x/tilesize);
-    var y0:int = Math.floor(window.y/tilesize);
-    var mw:int = Math.floor(window.width/tilesize)+1;
-    var mh:int = Math.floor(window.height/tilesize)+1;
-    if (_prevrect.x != x0 || _prevrect.y != y0 ||
-	_prevrect.width != mw || _prevrect.height != mh) {
-      renderTiles(x0, y0, mw, mh);
-      _prevrect.x = x0;
-      _prevrect.y = y0;
-      _prevrect.width = mw;
-      _prevrect.height = mh;
-    }
-    this.x = (x0*tilesize)-window.x;
-    this.y = (y0*tilesize)-window.y;
+    return bitmap.height-1;
   }
 
-  // renderTiles(x, y)
-  protected function renderTiles(x0:int, y0:int, mw:int, mh:int):void
-  {
-    if (bitmapData == null) {
-      bitmapData = new BitmapData(mw*tilesize, 
-				  mh*tilesize, 
-				  true, 0x00000000);
-    }
-    for (var dy:int = 0; dy < mh; dy++) {
-      for (var dx:int = 0; dx < mw; dx++) {
-	var i:int = getTile(x0+dx, y0+dy);
-	var src:Rectangle = new Rectangle(i*tilesize, 0, tilesize, tilesize);
-	var dst:Point = new Point(dx*tilesize, dy*tilesize);
-	bitmapData.copyPixels(tiles, src, dst);
-      }
-    }
-  }
-
-  // getTile(x, y)
+  // getTile(x, y): returns the tile of a pixel at (x,y).
   public function getTile(x:int, y:int):int
   {
-    if (x < 0 || map.width <= x || 
-	y < 0 || map.height <= y+1) {
+    if (x < 0 || bitmap.width <= x || 
+	y < 0 || bitmap.height-1 <= y) {
       return -1;
     }
-    var c:uint = map.getPixel(x, y+1);
+    var c:uint = bitmap.getPixel(x, y+1);
     return _tilevalue[c];
   }
 
-  // setTile(x, y)
-  public function setTile(x:int, y:int, v:int):void
+  // setTile(x, y, i): set the tile value of pixel at (x,y).
+  public function setTile(x:int, y:int, i:int):void
   {
-    if (x < 0 || map.width <= x || 
-	y < 0 || map.height <= y+1) {
-      return;
-    }
-    var c:uint = map.getPixel(v, 0);
-    map.setPixel(x, y+1, c);
+    var c:uint = bitmap.getPixel(i, 0);
+    bitmap.setPixel(x, y+1, c);
+    _rangecache = null;
   }
 
-  // scanTile(x, y, w, h, f)
-  public function scanTile(x:int, y:int, w:int, h:int, f:Function):Array
+  // isTile(x, y, f): true if the tile at (x,y) has a property given by f.
+  public function isTile(x:int, y:int, f:Function):Boolean
+  {
+    return f(getTile(x, y));
+  }
+  
+  // scanTile(x0, y0, x1, y1, f): returns a list of tiles that has a given property.
+  //  Note: This function scans the map sequentially and is O(w*h).
+  //        Use this only if an exact position of each item is needed.
+  //        For a "if-exists" query, use hasTile().
+  public function scanTile(x0:int, y0:int, x1:int, y1:int, f:Function):Array
   {
     var a:Array = new Array();
-    for (var dy:int = 0; dy < h; dy++) {
-      for (var dx:int = 0; dx < w; dx++) {
-	if (f(getTile(x+dx, y+dy))) {
-	  a.push(new Point(x+dx, y+dy));
+    var t:int;
+    // assert(x0 <= x1);
+    if (x1 < x0) {
+      t = x0; x0 = x1; x1 = t;
+    }
+    // assert(y0 <= y1);
+    if (y1 < y0) {
+      t = y0; y0 = y1; y1 = t;
+    }
+    for (var y:int = y0; y <= y1; y++) {
+      for (var x:int = x0; x <= x1; x++) {
+	if (f(getTile(x, y))) {
+	  a.push(new Point(x, y));
 	}
       }
     }
     return a;
   }
 
-  // hasTile(x, y, w, h, f)
-  public function hasTile(x:int, y:int, w:int, h:int, f:Function):Boolean
+  // getTilePoint(x, y): converts a point in the map to screen space.
+  public function getTilePoint(x:int, y:int):Point
   {
-    return (scanTile(x, y, w, h, f).length != 0);
+    return new Point(x*tilesize+tilesize/2, y*tilesize+tilesize/2);
   }
 
-  // getTileRect(x, y)
-  public function getTileRect(x:int, y:int):Rectangle
+  // getTileRect(x, y): converts an area in the map to screen space.
+  public function getTileRect(x:int, y:int, w:int=1, h:int=1):Rectangle
   {
-    return new Rectangle(x*tilesize, y*tilesize, tilesize, tilesize);
+    return new Rectangle(x*tilesize, y*tilesize, w*tilesize, h*tilesize);
   }
 
-  // getTileByRect(x, y)
-  public function getTileByRect(r:Rectangle):Rectangle
+  // getCoordsByPoint(p): converts a screen position to map coordinates.
+  public function getCoordsByPoint(p:Point):Point
+  {
+    var x:int = Math.floor(p.x/tilesize);
+    var y:int = Math.floor(p.y/tilesize);
+    return new Point(x, y);
+  }
+
+  // getCoordsByRect(r): converts a screen area to a map range.
+  public function getCoordsByRect(r:Rectangle):Rectangle
   {
     var x0:int = Math.floor(r.left/tilesize);
     var y0:int = Math.floor(r.top/tilesize);
@@ -141,19 +134,19 @@ public class TileMap extends Bitmap
     return new Rectangle(x0, y0, x1-x0, y1-y0);
   }
 
-  // hasTileByRect(r, f)
-  public function hasTileByRect(r:Rectangle, f:Function):Boolean
+  // scanTileByRect(r): returns a list of tiles that has a given property.
+  public function scanTileByRect(r:Rectangle, f:Function):Array
   {
-    var r1:Rectangle = getTileByRect(r);
-    return hasTile(r1.x, r1.y, r1.width, r1.height, f);
+    r = getCoordsByRect(r);
+    return scanTile(r.left, r.top, r.right-1, r.bottom-1, f);
   }
 
-  // getCollisionByRect(r, vx, vy, f)
+  // getCollisionByRect(r, vx, vy, f): 
+  //   adjusts vector (vx,vy) so that the rectangle doesn't collide with a tile specified by f.
   public function getCollisionByRect(r:Rectangle, vx:int, vy:int, f:Function):Point
   {
     var src:Rectangle = r.union(Utils.moveRect(r, vx, vy));
-    var r1:Rectangle = getTileByRect(src);
-    var a:Array = scanTile(r1.x, r1.y, r1.width, r1.height, f);
+    var a:Array = scanTileByRect(src, f);
     var v:Point = new Point(vx, vy);
     for each (var p:Point in a) {
       var t:Rectangle = getTileRect(p.x, p.y);
@@ -162,12 +155,6 @@ public class TileMap extends Bitmap
     return v;
   }
 
-  // hasCollisionByRect(r, f)
-  public function hasCollisionByRect(r:Rectangle, vx:int, vy:int, f:Function):Boolean
-  {
-    var src:Rectangle = r.union(Utils.moveRect(r, vx, vy));
-    return hasTileByRect(src, f);
-  }
 }
 
 } // package

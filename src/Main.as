@@ -1,7 +1,7 @@
 package {
 
 import flash.display.Sprite;
-import flash.display.Stage;
+import flash.display.Shape;
 import flash.display.StageScaleMode;
 import flash.display.DisplayObject;
 import flash.events.Event;
@@ -17,11 +17,12 @@ public class Main extends Sprite
 {
   private static var _logger:TextField;
 
-  private var _state:GameState;
+  private var _screen:Screen;
   private var _paused:Boolean;
   private var _keydown:int;
+  private var _pausescreen:Shape;
 
-  public static var font:Font = new Font();
+  public static var font:Font;
 
   // Main()
   public function Main()
@@ -42,60 +43,68 @@ public class Main extends Sprite
     _logger.type = TextFieldType.DYNAMIC;
     //addChild(_logger);
 
+    _pausescreen = new PauseScreen(stage.stageWidth, stage.stageHeight);
+    font = new Font();
+
     init();
   }
 
   // log(x)
-  public static function log(x:String):void
+  public static function log(... args):void
   {
+    var x:String = "";
+    for each (var a:Object in args) {
+      if (x.length != 0) x += " ";
+      x += a;
+    }
     _logger.appendText(x+"\n");
     _logger.scrollV = _logger.maxScrollV;
     if (_logger.parent != null) {
       _logger.parent.setChildIndex(_logger, _logger.parent.numChildren-1);
     }
+    trace(x);
   }
 
   // setPauseState(paused)
   private function setPauseState(paused:Boolean):void
   {
+    if (_paused) {
+      removeChild(_pausescreen);
+    }
     _paused = paused;
-  }
-
-  // setGameState(state)
-  private function setGameState(state:GameState):void
-  {
-    if (_state != null) {
-      log("close: "+_state);
-      _state.close();
-      _state.removeEventListener(GameStateEvent.CHANGED, onStateChanged);
-      removeChild(_state);
-    }
-    _state = state;
-    if (_state != null) {
-      log("open: "+_state);
-      _state.open();
-      _state.addEventListener(GameStateEvent.CHANGED, onStateChanged);
-      addChild(_state);
+    if (_paused) {
+      addChild(_pausescreen);
     }
   }
 
-  // createGameState(name)
-  private function createGameState(name:String):GameState
+  // setScreen(screen)
+  private function setScreen(screen:Screen):void
   {
-    switch (name) {
-    case MenuState.NAME:
-      return new MenuState(stage.stageWidth, stage.stageHeight);
-    case MainState.NAME:
-      return new MainState(stage.stageWidth, stage.stageHeight);
-    default:
-      return null;
+    if (_screen != null) {
+      log("close: "+_screen);
+      _screen.close();
+      _screen.removeEventListener(ScreenEvent.CHANGED, onScreenChanged);
+      removeChild(_screen);
+    }
+    _screen = screen;
+    if (_screen != null) {
+      log("open: "+_screen);
+      _screen.open();
+      _screen.addEventListener(ScreenEvent.CHANGED, onScreenChanged);
+      addChild(_screen);
     }
   }
 
-  // onStateChanged(e)
-  private function onStateChanged(e:GameStateEvent):void
+  // createScreen(Class)
+  private function createScreen(screen:Class):Screen
   {
-    setGameState(createGameState(e.name));
+    return new screen(stage.stageWidth, stage.stageHeight);
+  }
+
+  // onScreenChanged(e)
+  private function onScreenChanged(e:ScreenEvent):void
+  {
+    setScreen(createScreen(e.screen));
   }
 
   // OnActivate(e)
@@ -114,8 +123,8 @@ public class Main extends Sprite
   protected function OnEnterFrame(e:Event):void
   {
     if (!_paused) {
-      if (_state != null) {
-	_state.update();
+      if (_screen != null) {
+	_screen.update();
       }
     }
   }
@@ -136,8 +145,8 @@ public class Main extends Sprite
       break;
 
     default:
-      if (_state != null) {
-	_state.keydown(e.keyCode);
+      if (_screen != null) {
+	_screen.keydown(e.keyCode);
       }
     }
   }
@@ -146,17 +155,34 @@ public class Main extends Sprite
   protected function OnKeyUp(e:KeyboardEvent):void 
   {
     _keydown = 0;
-    if (_state != null) {
-      _state.keyup(e.keyCode);
+    if (_screen != null) {
+      _screen.keyup(e.keyCode);
     }
   }
 
   // init()
   protected virtual function init():void
   {
-    setGameState(createGameState(MenuState.NAME));
+    setScreen(createScreen(MenuScreen));
   }
 
 }
 
 } // package
+
+import flash.display.Shape;
+
+class PauseScreen extends Shape
+{
+  public function PauseScreen(width:int, height:int, size:int=50)
+  {
+    graphics.beginFill(0x8888ff, 0.3);
+    graphics.drawRect(0, 0, width, height);
+    graphics.endFill();
+    graphics.beginFill(0xeeeeee);
+    graphics.moveTo(width/2-size, height/2-size);
+    graphics.lineTo(width/2-size, height/2+size);
+    graphics.lineTo(width/2+size, height/2);
+    graphics.endFill();
+  }
+}

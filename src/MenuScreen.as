@@ -3,15 +3,12 @@ package {
 import flash.display.Bitmap;
 import flash.events.Event;
 import flash.ui.Keyboard;
-import GameState;
 
-//  MenuState
+//  MenuScreen
 // 
-public class MenuState extends GameState
+public class MenuScreen extends Screen
 {
-  public static const NAME:String = "MenuState";
-
-  public function MenuState(width:int, height:int)
+  public function MenuScreen(width:int, height:int)
   {
     var text:Bitmap;
     text = Main.font.createText("GAME\nPRESS ENTER TO START", 0xffffff, 2, 2);
@@ -28,7 +25,7 @@ public class MenuState extends GameState
     case Keyboard.ENTER:
     case 88:			// X
     case 90:			// Z
-      dispatchEvent(new GameStateEvent(MainState.NAME));
+      dispatchEvent(new ScreenEvent(GameScreen));
       break;
 
     }

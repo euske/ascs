@@ -1,15 +1,14 @@
 package {
 
+import flash.display.Shape;
 import flash.display.Bitmap;
 import flash.events.Event;
 import flash.ui.Keyboard;
 
-//  MainState
+//  GameScreen
 //
-public class MainState extends GameState
+public class GameScreen extends Screen
 {
-  public static const NAME:String = "MainState";
-  
   // Tile image:
   [Embed(source="../assets/tiles.png", mimeType="image/png")]
   private static const TilesImageCls:Class;
@@ -20,32 +19,29 @@ public class MainState extends GameState
   private static const MapImageCls:Class;
   private static const mapimage:Bitmap = new MapImageCls();
   
-  // Player image:
-  [Embed(source="../assets/player.png", mimeType="image/png")]
-  private static const PlayerImageCls:Class;
-  private static const playerimage:Bitmap = new PlayerImageCls();
-
   /// Game-related functions
 
   private var scene:Scene;
-  private var tilemap:TileMap;
   private var player:Player;
 
-  public function MainState(width:int, height:int)
+  public function GameScreen(width:int, height:int)
   {
-    tilemap = new TileMap(mapimage.bitmapData, tilesimage.bitmapData, 32);
-    scene = new Scene(width, height, tilemap);
-    player = new Player(scene);
-    player.skin = playerimage;
-    scene.add(player);
-    addChild(tilemap);
+    var tilesize:int = 32;
+    var tilemap:TileMap = new TileMap(mapimage.bitmapData, tilesize);
+    scene = new Scene(width, height, tilemap, tilesimage.bitmapData);
     addChild(scene);
+
+    player = new Player(scene);
+    player.pos = tilemap.getTilePoint(3, 3);
+    player.bounds = tilemap.getTileRect(3, 1, 1, 3);
+    player.skin = createSkin(tilesize*1, tilesize*3, 0x44ff44);
+    scene.add(player);
+
   }
 
   // open()
   public override function open():void
   {
-    player.bounds = tilemap.getTileRect(3, 3);
   }
 
   // close()
@@ -58,7 +54,7 @@ public class MainState extends GameState
   {
     scene.update();
     scene.setCenter(player.pos, 100, 100);
-    scene.repaint();
+    scene.paint();
   }
 
   // keydown(keycode)
@@ -121,6 +117,16 @@ public class MainState extends GameState
       player.dir.y = 0;
       break;
     }
+  }
+
+  // createSkin(w, h, color)
+  public static function createSkin(w:int, h:int, color:uint):Shape
+  {
+    var shape:Shape = new Shape();
+    shape.graphics.beginFill(color);
+    shape.graphics.drawRect(0, 0, w, h);
+    shape.graphics.endFill();
+    return shape;
   }
 }
 
