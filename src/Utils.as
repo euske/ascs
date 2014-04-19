@@ -92,6 +92,16 @@ public class Utils
     return Math.min(Math.max(v, v0), v1);
   }
   
+  // rnd(n)
+  public static function rnd(a:int, b:int=0):int
+  {
+    if (b < a) {
+      var c:int = a;
+      a = b;
+      b = c;
+    }
+    return Math.floor(Math.random()*(b-a))+a;
+  }
 }
 
 } // package
