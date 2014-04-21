@@ -12,121 +12,72 @@ public class Font
 {
   [Embed(source="../assets/font.png", mimeType="image/png")]
   private static const FontGlyphsCls:Class;
-  private static const fontglyphs:BitmapData = new FontGlyphsCls().bitmapData;
 
-  public const width:int = 8;
-  public const height:int = 8;
-
-  // Font()
-  public function Font()
-  {
-  }
-
-  // getCharWidth(c)
-  //   Returns a width of a character.
-  protected function getCharWidth(c:int):int
-  {
-    return width;
-  }
-
-  // getCharHeight(c)
-  //   Returns a height of a character.
-  protected function getCharHeight(c:int):int
-  {
-    return height;
-  }
+  private static var _glyphs:BitmapData = new FontGlyphsCls().bitmapData;
+  private static var _width:int = 8;
+  private static var _height:int = 8;
 
   // getCharOffset(c)
   //   Returns an offset of a character.
-  protected function getCharOffset(c:int):int
+  protected static function getCharOffset(c:int):int
   {
-    return width*(c-32);
-  }
-
-  // getLineSize(text)
-  public function getLineSize(text:String):Point
-  {
-    var size:Point = new Point();
-    for (var i:int = 0; i < text.length; i++) {
-      var c:int = text.charCodeAt(i);
-      size.x += getCharWidth(c);
-      size.y = Math.max(size.y, getCharHeight(c));
-    }
-    return size;
-  }
-
-  // renderLine(bitmapData, text, p)
-  //   Render a text string on a given BitmapData.
-  public function renderLine(bitmapData:BitmapData, text:String, p:Point):Point
-  {
-    p = p.clone();
-    var size:Point = new Point();
-    for (var i:int = 0; i < text.length; i++) {
-      var c:int = text.charCodeAt(i);
-      var w:int = getCharWidth(c);
-      if (w == 0) continue;
-      var h:int = getCharHeight(c);
-      var src:Rectangle = new Rectangle(getCharOffset(c), 0, w, h);
-      bitmapData.copyPixels(fontglyphs, src, p);
-      p.x += w;
-      size.x += w;
-      size.y = Math.max(size.y, h);
-    }
-    return size;
+    return _width*(c-32);
   }
 
   // getTextSize(text, linespace)
   //   Returns a width of a given string.
-  public function getTextSize(text:String, linespace:int=0):Point
+  public static function getTextSize(text:String, linespace:int=0):Point
   {
     var mw:int = 0;
+    var mh:int = 0;
     var w:int = 0;
-    var h:int = height;
     for (var i:int = 0; i < text.length; i++) {
       var c:int = text.charCodeAt(i);
       if (c == 10) {
 	mw = Math.max(w, mw);
+	mh += _height+linespace;
 	w = 0;
-	h += linespace+height;
       } else {
-	w += getCharWidth(c);
+	w += _width;
       }
     }
     mw = Math.max(w, mw);
-    return new Point(mw, h);
+    mh += _height;
+    return new Point(mw, mh);
   }
 
   // renderText(bitmapData, text, p, linespace)
   //   Render a text string on a given BitmapData.
-  public function renderText(bitmapData:BitmapData, text:String, p:Point, linespace:int=0):void
+  public static function renderText(bitmapData:BitmapData, text:String, 
+				    x:int=0, y:int=0, 
+				    color:uint=0xffffff, linespace:int=0):void
   {
-    p = p.clone();
+    var p:Point = new Point(x, y);
     for (var i:int = 0; i < text.length; i++) {
       var c:int = text.charCodeAt(i);
       if (c == 10) {
 	p.x = 0;
-	p.y += linespace+height;
+	p.y += _height+linespace;
 	continue;
       }
-      var w:int = getCharWidth(c);
-      if (w == 0) continue;
-      var src:Rectangle = new Rectangle(getCharOffset(c), 0, w, height);
-      bitmapData.copyPixels(fontglyphs, src, p);
-      p.x += w;
+      var src:Rectangle = new Rectangle(getCharOffset(c), 0, _width, _height);
+      bitmapData.copyPixels(_glyphs, src, p);
+      p.x += _width;
     }
+    var ct:ColorTransform = new ColorTransform();
+    ct.color = color;
+    bitmapData.colorTransform(bitmapData.rect, ct);
   }
 
   // createText(text, color, linespace, scale)
   //   Creates a Bitmap with a given string rendered.
-  public function createText(text:String, 
-			     color:uint=0xffffff, linespace:int=0, scale:int=1):Bitmap
+  public static function createText(text:String, 
+				    color:uint=0xffffff, linespace:int=0, 
+				    scale:int=1):Bitmap
   {
     var size:Point = getTextSize(text, linespace);
     var bitmapData:BitmapData = new BitmapData(size.x, size.y, true, 0);
-    renderText(bitmapData, text, new Point(), linespace);
-    var ct:ColorTransform = new ColorTransform();
-    ct.color = color;
-    bitmapData.colorTransform(bitmapData.rect, ct);
+    renderText(bitmapData, text, 0, 0, color, linespace);
     var bitmap:Bitmap = new Bitmap(bitmapData);
     bitmap.width *= scale;
     bitmap.height *= scale;

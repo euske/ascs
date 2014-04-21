@@ -39,10 +39,22 @@ public class Actor
 			  value.width, value.height);
   }
 
+  // move(dx, dy)
+  public function move(dx:int, dy:int):void
+  {
+    pos = Utils.movePoint(pos, dx, dy);
+  }
+
   // getMovedBounds(dx, dy)
   public function getMovedBounds(dx:int, dy:int):Rectangle
   {
     return Utils.moveRect(bounds, dx, dy);
+  }
+
+  // isMovable(dx, dy)
+  public function isMovable(dx:int, dy:int):Boolean
+  {
+    return scene.maprect.containsRect(getMovedBounds(dx, dy));
   }
 
   // update()

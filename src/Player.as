@@ -9,7 +9,8 @@ import flash.geom.Point;
 //
 public class Player extends Actor
 {
-  public var dir:Point;
+  public var vx:int;
+  public var vy:int;
 
   public const speed:int = 8;
 
@@ -17,19 +18,18 @@ public class Player extends Actor
   public function Player(scene:Scene)
   {
     super(scene);
-    dir = new Point(0, 0);
+    vx = 0;
+    vy = 0;
   }
 
   // update()
   public override function update():void
   {
-    move(new Point(dir.x*speed, dir.y*speed));
-  }
-
-  // move(v)
-  public function move(v:Point):void
-  {
-    pos = Utils.movePoint(pos, v.x, v.y);
+    var dx:int = vx*speed;
+    var dy:int = vy*speed;
+    if (isMovable(dx, dy)) {
+      move(dx, dy);
+    }
   }
 
   // action()

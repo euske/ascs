@@ -102,6 +102,21 @@ public class Utils
     }
     return Math.floor(Math.random()*(b-a))+a;
   }
+
+  // format
+  public static function format(v:int, n:int=3, c:String=" "):String
+  {
+    var s:String = "";
+    while (s.length < n) {
+      s = (v % 10)+s;
+      v /= 10;
+      if (v <= 0) break;
+    }
+    while (s.length < n) {
+      s = c+s;
+    }
+    return s;
+  }
 }
 
 } // package

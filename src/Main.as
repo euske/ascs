@@ -22,8 +22,6 @@ public class Main extends Sprite
   private var _keydown:int;
   private var _pausescreen:Shape;
 
-  public static var font:Font;
-
   // Main()
   public function Main()
   {
@@ -44,7 +42,6 @@ public class Main extends Sprite
     //addChild(_logger);
 
     _pausescreen = new PauseScreen(stage.stageWidth, stage.stageHeight);
-    font = new Font();
 
     init();
   }

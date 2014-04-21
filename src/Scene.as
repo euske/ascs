@@ -1,5 +1,6 @@
 package {
 
+import flash.display.Shape;
 import flash.display.Sprite;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
@@ -15,7 +16,7 @@ public class Scene extends Sprite
   private var _tilewindow:Rectangle;
   private var _tiles:BitmapData;
   private var _mapimage:Bitmap;
-  private var _mapsize:Point;
+  private var _maprect:Rectangle;
   private var _actors:Array;
 
   // Scene(width, height, tilemap)
@@ -29,16 +30,29 @@ public class Scene extends Sprite
     _mapimage = new Bitmap(new BitmapData(width+tilemap.tilesize, 
 					  height+tilemap.tilesize, 
 					  true, 0x00000000));
-    _mapsize = new Point(tilemap.width*tilemap.tilesize,
-			 tilemap.height*tilemap.tilesize);
+    _maprect = new Rectangle(0, 0,
+			     tilemap.width*tilemap.tilesize,
+			     tilemap.height*tilemap.tilesize);
     _actors = new Array();
     addChild(_mapimage);
+    
+    var clipping:Shape = new Shape();
+    clipping.graphics.beginFill(0xffffff);
+    clipping.graphics.drawRect(0, 0, width, height);
+    addChild(clipping);
+    mask = clipping;
   }
 
   // tilemap
   public function get tilemap():TileMap
   {
     return _tilemap;
+  }
+
+  // maprect
+  public function get maprect():Rectangle
+  {
+    return _maprect;
   }
 
   // window
@@ -57,8 +71,20 @@ public class Scene extends Sprite
   // remove(actor)
   public function remove(actor:Actor):void
   {
-    _actors.remove(actor);
-    removeChild(actor.skin);
+    var i:int = _actors.indexOf(actor);
+    if (0 <= i) {
+      _actors.splice(i, 1);
+      removeChild(actor.skin);
+    }
+  }
+
+  // clear()
+  public function clear():void
+  {
+    for each (var actor:Actor in _actors) {
+      removeChild(actor.skin);
+    }
+    _actors = new Array();
   }
 
   // update()
@@ -72,11 +98,14 @@ public class Scene extends Sprite
   // paint()
   public function paint():void
   {
+    // Render each actor.
     for each (var actor:Actor in _actors) {
       var p:Point = translatePoint(actor.pos);
       actor.skin.x = p.x+actor.frame.x;
       actor.skin.y = p.y+actor.frame.y;
     }
+
+    // Refresh the map if needed.
     var tilesize:int = _tilemap.tilesize;
     var x0:int = Math.floor(_window.left/tilesize);
     var y0:int = Math.floor(_window.top/tilesize);
@@ -117,19 +146,19 @@ public class Scene extends Sprite
   public function setCenter(p:Point, hmargin:int, vmargin:int):void
   {
     // Center the window position.
-    if (_mapsize.x < _window.width) {
-      _window.x = -(_window.width-_mapsize.x)/2;
+    if (_maprect.width < _window.width) {
+      _window.x = -(_window.width-_maprect.width)/2;
     } else if (p.x-hmargin < _window.x) {
-      _window.x = Math.max(0, p.x-hmargin);
+      _window.x = Math.max(_maprect.left, p.x-hmargin);
     } else if (_window.x+_window.width < p.x+hmargin) {
-      _window.x = Math.min(_mapsize.x, p.x+hmargin)-_window.width;
+      _window.x = Math.min(_maprect.right, p.x+hmargin)-_window.width;
     }
-    if (_mapsize.y < _window.height) {
-      _window.y = -(_window.height-_mapsize.y)/2;
+    if (_maprect.height < _window.height) {
+      _window.y = -(_window.height-_maprect.height)/2;
     } else if (p.y-vmargin < _window.y) {
-      _window.y = Math.max(0, p.y-vmargin);
+      _window.y = Math.max(_maprect.top, p.y-vmargin);
     } else if (_window.y+_window.height < p.y+vmargin) {
-      _window.y = Math.min(_mapsize.y, p.y+vmargin)-_window.height;
+      _window.y = Math.min(_maprect.bottom, p.y+vmargin)-_window.height;
     }
   }
 
