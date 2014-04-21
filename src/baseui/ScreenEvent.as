@@ -1,4 +1,4 @@
-package {
+package baseui {
 
 import flash.events.Event;
 
@@ -18,4 +18,4 @@ public class ScreenEvent extends Event
   
 }
 
-} // package
+} // package baseui

@@ -9,6 +9,8 @@ import flash.events.KeyboardEvent;
 import flash.text.TextField;
 import flash.text.TextFieldType;
 import flash.ui.Keyboard;
+import baseui.Screen;
+import baseui.ScreenEvent;
 
 //  Main 
 //

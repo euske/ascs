@@ -30,10 +30,10 @@ run: $(TARGET)
 debug: $(TARGET_DEBUG)
 	$(FDB) $(TARGET_DEBUG)
 
-$(TARGET): .$(SEP)src$(SEP)*.as
+$(TARGET): .$(SEP)src$(SEP)*.as .$(SEP)src$(SEP)baseui$(SEP)*.as
 	$(MXMLC) $(CFLAGS) -compiler.source-path=.$(SEP)src$(SEP) \
 		-o $@ .$(SEP)src$(SEP)Main.as
 
-$(TARGET_DEBUG): .$(SEP)src$(SEP)*.as
+$(TARGET_DEBUG): .$(SEP)src$(SEP)*.as .$(SEP)src$(SEP)baseui$(SEP)*.as
 	$(MXMLC) $(CFLAGS) $(CFLAGS_DEBUG) -compiler.source-path=.$(SEP)src$(SEP) \
 		-o $@ .$(SEP)src$(SEP)Main.as

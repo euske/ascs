@@ -1,4 +1,4 @@
-package {
+package baseui {
 
 import flash.display.Sprite;
 
@@ -33,4 +33,4 @@ public class Screen extends Sprite
   
 }
 
-} // package
+} // package baseui

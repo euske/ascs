@@ -3,6 +3,9 @@ package {
 import flash.display.Bitmap;
 import flash.events.Event;
 import flash.ui.Keyboard;
+import baseui.Font;
+import baseui.Screen;
+import baseui.ScreenEvent;
 
 //  MenuScreen
 // 

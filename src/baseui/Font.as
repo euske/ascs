@@ -1,4 +1,4 @@
-package {
+package baseui {
 
 import flash.display.Bitmap;
 import flash.display.BitmapData;
@@ -10,7 +10,7 @@ import flash.geom.ColorTransform;
 // 
 public class Font
 {
-  [Embed(source="../assets/font.png", mimeType="image/png")]
+  [Embed(source="../../assets/font.png", mimeType="image/png")]
   private static const FontGlyphsCls:Class;
 
   private static var _glyphs:BitmapData = new FontGlyphsCls().bitmapData;
@@ -85,4 +85,4 @@ public class Font
   }
 }
 
-} // package
+} // package baseui

@@ -10,6 +10,9 @@ import flash.ui.Keyboard;
 import flash.media.Sound;
 import flash.media.SoundChannel;
 import flash.utils.getTimer;
+import baseui.Font;
+import baseui.Screen;
+import baseui.ScreenEvent;
 
 //  GameScreen
 //
