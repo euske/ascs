@@ -3,16 +3,15 @@ package {
 import flash.display.Shape;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
-import flash.events.Event;
 import flash.geom.Rectangle;
 import flash.geom.Point;
 import flash.ui.Keyboard;
 import flash.media.Sound;
-import flash.media.SoundChannel;
 import flash.utils.getTimer;
 import baseui.Font;
 import baseui.Screen;
 import baseui.ScreenEvent;
+import baseui.SoundLoop;
 
 //  GameScreen
 //
@@ -40,7 +39,7 @@ public class GameScreen extends Screen
   private var _scene:Scene;
   private var _player:Player;
   private var _status:Bitmap;
-  private var _channel:SoundChannel;
+  private var _music:SoundLoop;
 
   public function GameScreen(width:int, height:int)
   {
@@ -52,6 +51,8 @@ public class GameScreen extends Screen
     _scene = new Scene(width, height, tilemap, tilesImage.bitmapData);
     _scene.y = _status.height;
     addChild(_scene);
+
+    //_music = new SoundLoop(mainMusic);
   }
 
   // open()
@@ -65,18 +66,35 @@ public class GameScreen extends Screen
     _player.skin = createSkin(skinsImage.bitmapData, 
 			     new Rectangle(tilesize*3, tilesize*0, tilesize, tilesize));
     _scene.add(_player);
-
-    // TODO: Event.SOUND_COMPLETE
-    //_channel = mainMusic.play();
+    
+    if (_music != null) {
+      _music.start();
+    }
   }
 
   // close()
   public override function close():void
   {
+    if (_music != null) {
+      _music.stop();
+    }
     removeChild(_scene);
     _scene.clear();
-    if (_channel != null) {
-      _channel.stop();
+  }
+
+  // pause()
+  public override function pause():void
+  {
+    if (_music != null) {
+      _music.pause();
+    }
+  }
+
+  // resume()
+  public override function resume():void
+  {
+    if (_music != null) {
+      _music.resume();
     }
   }
 

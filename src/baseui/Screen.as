@@ -16,6 +16,16 @@ public class Screen extends Sprite
   {
   }
   
+  // pause()
+  public virtual function pause():void
+  {
+  }
+
+  // resume()
+  public virtual function resume():void
+  {
+  }
+  
   // update()
   public virtual function update():void
   {

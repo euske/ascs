@@ -67,13 +67,19 @@ public class Main extends Sprite
   // setPauseState(paused)
   private function setPauseState(paused:Boolean):void
   {
-    if (_paused) {
+    log("pause: "+paused);
+    if (_paused && !paused) {
       removeChild(_pausescreen);
-    }
-    _paused = paused;
-    if (_paused) {
+      if (_screen != null) {
+	_screen.resume();
+      }
+    } else if (!_paused && paused) {
+      if (_screen != null) {
+	_screen.pause();
+      }
       addChild(_pausescreen);
     }
+    _paused = paused;
   }
 
   // setScreen(screen)
