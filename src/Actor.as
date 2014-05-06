@@ -1,15 +1,15 @@
 package {
 
+import flash.events.EventDispatcher;
 import flash.display.DisplayObject;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 
 //  Actor
 //
-public class Actor
+public class Actor extends EventDispatcher
 {
   public var pos:Point;
-  public var frame:Rectangle;
   public var skin:DisplayObject;
 
   private var _scene:Scene;
@@ -18,7 +18,7 @@ public class Actor
   public function Actor(scene:Scene)
   {
     _scene = scene;
-    pos = new Point(0, 0);
+    pos = new Point();
   }
 
   // scene
@@ -27,16 +27,19 @@ public class Actor
     return _scene;
   }
 
+  // skinBounds: Character boundary (relative to pos).
+  public function get skinBounds():Rectangle
+  {
+    return new Rectangle(-10, -10, 20, 20);
+  }
+
   // bounds
   public function get bounds():Rectangle
   {
-    return new Rectangle(pos.x+frame.x, pos.y+frame.y, 
-			 frame.width, frame.height);
-  }
-  public function set bounds(value:Rectangle):void
-  {
-    frame = new Rectangle(value.x-pos.x, value.y-pos.y,
-			  value.width, value.height);
+    return new Rectangle(pos.x+skinBounds.x, 
+			 pos.y+skinBounds.y, 
+			 skinBounds.width,
+			 skinBounds.height);
   }
 
   // move(dx, dy)
@@ -52,13 +55,24 @@ public class Actor
   }
 
   // isMovable(dx, dy)
-  public function isMovable(dx:int, dy:int):Boolean
+  public virtual function isMovable(dx:int, dy:int):Boolean
   {
     return scene.maprect.containsRect(getMovedBounds(dx, dy));
   }
 
-  // update()
-  public virtual function update():void
+  // active
+  public virtual function get active():Boolean
+  {
+    return true;
+  }
+
+  // collide(actor): called when the actor is colliding with another actor.
+  public virtual function collide(actor:Actor):void
+  {
+  }
+
+  // update(t)
+  public virtual function update(t:int):void
   {
   }
 

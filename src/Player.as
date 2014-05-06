@@ -23,7 +23,7 @@ public class Player extends Actor
   }
 
   // update()
-  public override function update():void
+  public override function update(t:int):void
   {
     var dx:int = vx*speed;
     var dy:int = vy*speed;

@@ -36,6 +36,7 @@ public class GameScreen extends Screen
 
   /// Game-related functions
 
+  private var _clock:int;
   private var _scene:Scene;
   private var _player:Player;
   private var _status:Bitmap;
@@ -48,7 +49,7 @@ public class GameScreen extends Screen
 
     var tilesize:int = 32;
     var tilemap:TileMap = new TileMap(mapImage.bitmapData, tilesize);
-    _scene = new Scene(width, height, tilemap, tilesImage.bitmapData);
+    _scene = new Scene(20, 15, tilesize, tilemap, tilesImage.bitmapData);
     _scene.y = _status.height;
     addChild(_scene);
 
@@ -58,11 +59,10 @@ public class GameScreen extends Screen
   // open()
   public override function open():void
   {
-    var tilesize:int = _scene.tilemap.tilesize;
+    var tilesize:int = _scene.tilesize;
 
     _player = new Player(_scene);
     _player.pos = _scene.tilemap.getTilePoint(1, 1);
-    _player.frame = new Rectangle(0, 0, tilesize, tilesize);
     _player.skin = createSkin(skinsImage.bitmapData, 
 			     new Rectangle(tilesize*3, tilesize*0, tilesize, tilesize));
     _scene.add(_player);
@@ -104,9 +104,10 @@ public class GameScreen extends Screen
     var text:String = "TEXT";
     Font.renderText(_status.bitmapData, text);
 
-    _scene.update();
+    _scene.update(_clock);
     _scene.setCenter(_player.pos, 100, 100);
     _scene.paint();
+    _clock++;
   }
 
   // keydown(keycode)

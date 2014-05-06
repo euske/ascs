@@ -3,7 +3,7 @@ package {
 import flash.display.Sprite;
 import flash.display.Shape;
 import flash.display.StageScaleMode;
-import flash.display.DisplayObject;
+import flash.display.StageAlign;
 import flash.events.Event;
 import flash.events.KeyboardEvent;
 import flash.text.TextField;
@@ -14,6 +14,7 @@ import baseui.ScreenEvent;
 
 //  Main 
 //
+[Frame(factoryClass="Preloader")]
 [SWF(width="640", height="480", backgroundColor="#000000", frameRate=24)]
 public class Main extends Sprite
 {
@@ -27,7 +28,39 @@ public class Main extends Sprite
   // Main()
   public function Main()
   {
-    stage.scaleMode = StageScaleMode.NO_SCALE;
+    if (stage) {
+      stage.scaleMode = StageScaleMode.NO_SCALE;
+      stage.align = StageAlign.TOP_LEFT;
+      init();
+    } else {
+      addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+    }
+  }
+
+  // log(x)
+  public static function log(... args):void
+  {
+    var x:String = "";
+    for each (var a:Object in args) {
+      if (x.length != 0) x += " ";
+      x += a;
+    }
+    _logger.appendText(x+"\n");
+    _logger.scrollV = _logger.maxScrollV;
+    if (_logger.parent != null) {
+      _logger.parent.setChildIndex(_logger, _logger.parent.numChildren-1);
+    }
+    trace(x);
+  }
+
+  private function onAddedToStage(e:Event):void
+  {
+    removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+    init();
+  }
+
+  private function init():void
+  {
     stage.addEventListener(Event.ACTIVATE, OnActivate);
     stage.addEventListener(Event.DEACTIVATE, OnDeactivate);
     stage.addEventListener(Event.ENTER_FRAME, OnEnterFrame);
@@ -45,23 +78,7 @@ public class Main extends Sprite
 
     _pausescreen = new PauseScreen(stage.stageWidth, stage.stageHeight);
 
-    init();
-  }
-
-  // log(x)
-  public static function log(... args):void
-  {
-    var x:String = "";
-    for each (var a:Object in args) {
-      if (x.length != 0) x += " ";
-      x += a;
-    }
-    _logger.appendText(x+"\n");
-    _logger.scrollV = _logger.maxScrollV;
-    if (_logger.parent != null) {
-      _logger.parent.setChildIndex(_logger, _logger.parent.numChildren-1);
-    }
-    trace(x);
+    reset();
   }
 
   // setPauseState(paused)
@@ -146,7 +163,7 @@ public class Main extends Sprite
 
     case Keyboard.ESCAPE:	// Esc
     case 81:			// Q
-      init();
+      reset();
       break;
 
     default:
@@ -165,8 +182,8 @@ public class Main extends Sprite
     }
   }
 
-  // init()
-  protected virtual function init():void
+  // reset()
+  protected virtual function reset():void
   {
     setScreen(createScreen(MenuScreen));
   }
